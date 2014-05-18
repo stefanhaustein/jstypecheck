@@ -6,15 +6,25 @@
  * @constructor
  */
 var JsTypeCheck = window.JsTypeCheck = function (schema) {
-	this.types = schema['definitions'];
-	this.globals = {};
+	/** Type definitions from the schema */
+	this.definitions = schema['definitions'];
+	
+	/** Globals from the schema */
+	this.globals = schema['globals'];
+
+	/** Locals declared in the last function of the processed code. */
 	this.locals = {};
+	
+	/** Globals declared in the processed code. */
+	this.declaredGlobals = {};
 };
 
 JsTypeCheck.TYPE_ANY = {type: "*"};
+JsTypeCheck.TYPE_ARRAY = {type: "array"};
 JsTypeCheck.TYPE_BOOLEAN = {type: "boolean"};
 JsTypeCheck.TYPE_NUMBER = {type: "number"};
 JsTypeCheck.TYPE_NULL = {type: "null"};
+JsTypeCheck.TYPE_OBJECT = {type: "object"};
 JsTypeCheck.TYPE_STRING = {type: "string"};
 JsTypeCheck.TYPE_UNDEFINED = {type: "undefined"};
 
@@ -79,13 +89,17 @@ JsTypeCheck.prototype.checkVariableDeclarator = function(varDecl) {
 };
 
 JsTypeCheck.prototype.checkExpression = function(expr) {
+	var jsType;
 	switch(expr.type) {
 	case "Literal":
-		return this.checkLiteral(expr);
+		jsType = this.checkLiteral(expr);
+		break;
 	default:
 		console.log("skipping expr: ", expr);
-		return JsTypeCheck.TYPE_ANY;
+		jsType = JsTypeCheck.TYPE_ANY;
 	}
+	expr.jsType = jsType;
+	return jsType;
 };
 
 JsTypeCheck.prototype.debug = function(fn, node) {
@@ -103,7 +117,7 @@ JsTypeCheck.prototype.getValueType = function(value) {
 	case "string": return JsTypeCheck.TYPE_STRING;
 	// TODO: construct JSON type from literal, care about arrays
 	default: 
-		return this.types["Object"];  
+		return this.definitions["Object"];  
 	}
 };
 

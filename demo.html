@@ -15,17 +15,24 @@
  </head>
  <body>
   <h3>JsTypeCheck Interactive Demo</h3>
+  
+  <p>Ok, only primitive literals work, but it's a start... O:)</p>
+  
   <table cellspacing=10>
+   <tr>
+     <td></td><td></td><td><b>AST</b></td><td><b>Typed AST</b></td>
+   </tr>
    <tr>
     <th>Input:<br>
       <button onclick="check(document.getElementById('input').value)">Check</button>    
     </th>
-   	<td><textarea id="input" cols=60 rows=10>
+   	<td><textarea id="input" cols=40 rows=10>
 function test() {
   var n = 5;
 };
 </textarea></td>
     <td rowspan="4"><pre id="ast"></pre></td>
+    <td rowspan="4"><pre id="typedAst"></pre></td>
    </tr>
    <tr>
     <th>Last Fn<br>Local Types:</th>
@@ -48,6 +55,7 @@ function test() {
 	console.log("testInput", testInput);
     document.getElementById("locals").textContent = ""; 
     document.getElementById("globals").textContent = ""; 
+    document.getElementById("typedAst").textContent = ""; 
 	try {		
      var ast = esprima.parse(testInput);
   	 window.console.log(ast);
@@ -57,7 +65,8 @@ function test() {
       tc.check(ast);
       console.log("locals:", tc.locals, "globals:", tc.globals);
       document.getElementById("locals").textContent = JSON.stringify(tc.locals, undefined, 2);
-      document.getElementById("globals").textContent = JSON.stringify(tc.globals, undefined, 2);
+      document.getElementById("globals").textContent = JSON.stringify(tc.declaredGlobals, undefined, 2);
+      document.getElementById("typedAst").textContent = JSON.stringify(ast, undefined, 2); 
      } catch(ce) {
       console.log(ce);
       document.getElementById("locals").textContent = JSON.stringify(ce, undefined, 2);
